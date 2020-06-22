@@ -13,6 +13,8 @@ class Minio(object):
             self.init_app(app)
 
     def init_app(self, app):
+    	if not self.app:
+    		self.app = app
         app.config.setdefault('MINIO_ENDPOINT', 'play.minio.io:9000')
         app.config.setdefault('MINIO_ACCESS_KEY', 'Q3AM3UQ867SPQQA43P2F')
         app.config.setdefault('MINIO_SECRET_KEY', 'zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG')
@@ -21,7 +23,8 @@ class Minio(object):
         app.config.setdefault('MINIO_HTTP_CLIENT', None)
         app.teardown_appcontext(self.teardown)
 
-    def connect(self):
+    @staticmethod
+    def connect():
         return minio.Minio(
             current_app.config['MINIO_ENDPOINT'],
             access_key = current_app.config['MINIO_ACCESS_KEY'],
@@ -31,7 +34,8 @@ class Minio(object):
             http_client = current_app.config['MINIO_HTTP_CLIENT']
         )
 
-    def teardown(self, exception):
+    @staticmethod
+    def teardown(exception):
         ctx = _app_ctx_stack.top
         if hasattr(ctx, 'minio'):
             ctx.minio._http.clear()
